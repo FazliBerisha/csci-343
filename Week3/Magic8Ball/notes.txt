@@ -1,0 +1,36 @@
+Mock up and build a magic eight ball app. This app should be structured correctly as demonstrated in class and should utilize correct folder structure. The main page of the app should include a TextInput field to get the users question and a button to submit. Once the submit button is clicked, the app should randomly choose a response and display the users question and the response on a modal screen that opens up. The modal screen state, users question, and response to the question should be stored in state management variables. The modal screen should close when the user clicks a close button on the modal screen. Each component of the app should be styled adequately and be visible to the user. 
+
+Note: In Moodle's Class Data Files section there is a code snippet named MagicEightBallResponses.txt that includes all of the responses for the magic eight ball.
+
+Upon completing of the app mock up and the app code,
+
+Create a docs folder in your app code project structure.
+Save your app mock up as a png and add your sketch to the docs folder.
+Delete the node_modules folder from your app code project structure.
+Zip your local project folder and name the zipped folder lastname_03.
+Submit the zipped folder to the Moodle assignment submission.
+Make sure your app project folder is uploaded to your personal GitHub public code repository that you created for this class.
+In your submission include a link to your personal GitHub public code repository.
+
+const responses = [
+    "It is certain",
+    "It is decidedly so",
+    "Without a doubt",
+    "Yes definitely",
+    "You may rely on it",
+    "As I see it, yes",
+    "Most likely",
+    "Outlook good",
+    "Yes",
+    "Signs point to yes",
+    "Reply hazy, try again",
+    "Ask again later",
+    "Better not tell you now",
+    "Cannot predict now",
+    "Concentrate and ask again",
+    "Don't count on it",
+    "My reply is no",
+    "My sources say no",
+    "Outlook not so good",
+    "Very doubtful"
+  ];
