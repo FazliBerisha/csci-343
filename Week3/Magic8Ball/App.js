@@ -2,6 +2,11 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TextInput, Button, Modal } from 'react-native';
 import { useState } from 'react';
 
+  //useState for:
+    //- question - storing user input
+    //- response - storing the magic 8 ball response
+    //- modalVisible - controlling modal visibility
+
 export default function App() {
   const [question, setQuestion] = useState('');
   const [response, setResponse] = useState('');

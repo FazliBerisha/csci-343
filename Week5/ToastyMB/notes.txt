@@ -1,0 +1,124 @@
+ File Structure & Function Flow
+
+  ┌─────────────────┐
+  │    index.js     │ ← Entry point
+  │  registerRootComponent(App)
+  └─────┬───────────┘
+        │ imports
+        ▼
+  ┌─────────────────┐
+  │     App.js      │ ← Main navigation controller
+  │                 │
+  │ Functions:      │
+  │ • App()         │ ← Main component
+  │ • menuScreenHandler()  │ ← Sets screen to "menu"
+  │ • baseScreenHandler()  │ ← Sets screen to "base"
+  │                 │
+  │ State:          │
+  │ • currentScreen │ ← Tracks which screen to show
+  │ • fontsLoaded   │ ← Manages font loading
+  └─────┬─┬─────────┘
+        │ │ imports Colors from constants/color.js
+        │ │
+        │ └─────────────────────┐
+        │                       ▼
+        │               ┌─────────────────┐
+        │               │ constants/      │
+        │               │   color.js      │
+        │               │                 │
+        │               │ Exports:        │
+        │               │ • Colors object │
+        │               │   - accent500   │
+        │               │   - primary500  │
+        │               │   - secondary500│
+        │               │   - text500     │
+        │               └─────────────────┘
+        │
+        ├─ conditionally renders ─┐
+        │                         │
+        ▼                         ▼
+  ┌─────────────────┐    ┌─────────────────┐
+  │ screens/        │    │ screens/        │
+  │ BaseScreen.js   │    │ MenuScreen.js   │
+  │                 │    │                 │
+  │ Functions:      │    │ Functions:      │
+  │ • BaseScreen()  │    │ • MenuScreen()  │
+  │                 │    │                 │
+  │ Props received: │    │ Props received: │
+  │ • onNext        │    │ • onNext        │
+  │   (menuScreenHandler) │ │   (baseScreenHandler)
+  │                 │    │                 │
+  │ Uses Linking:   │    │ State:          │
+  │ • openURL()     │    │ • menuItems[]   │
+  └─────┬───────────┘    └─────┬───────────┘
+        │ imports              │ imports
+        ▼                      ▼
+  ┌─────────────────┐    ┌─────────────────┐
+  │ components/     │    │ components/     │
+  │ Title.js        │    │ Title.js +      │
+  │                 │    │ MenuItem.js     │
+  │ Functions:      │    │                 │
+  │ • Title()       │    │ Functions:      │
+  │                 │    │ • Title()       │
+  │ Props received: │    │ • MenuItem()    │
+  │ • children      │    │                 │
+  │   (display text)│    │ Props received: │
+  └─────────────────┘    │ MenuItem gets:  │
+                         │ • name          │
+                         │ • image         │
+                         │ • price         │
+                         └─────────────────┘
+
+  Function Call Flow
+
+  App Startup:
+  1. index.js:registerRootComponent() → App.js:App()
+  2. App() loads fonts with useFonts()
+  3. App() initializes currentScreen state as "base"
+
+  Screen Navigation:
+  1. BaseScreen → MenuScreen:
+    - BaseScreen receives onNext={menuScreenHandler}
+    - User taps "View Menu" button
+    - Calls menuScreenHandler() in App.js:31
+    - Sets currentScreen to "menu"
+    - App.js:42 renders <MenuScreen onNext={baseScreenHandler}/>
+  2. MenuScreen → BaseScreen:
+    - MenuScreen receives onNext={baseScreenHandler}
+    - User taps "Main Menu" button
+    - Calls baseScreenHandler() in App.js:35
+    - Sets currentScreen to "base"
+    - App.js:40 renders <BaseScreen onNext={menuScreenHandler}/>
+
+  Component Usage:
+  - Both screens import and use Title component
+  - MenuScreen uses MenuItem component in FlatList.renderItem
+  - MenuItem receives props: name, image, price from menuItems array
+
+  External Actions:
+  - BaseScreen.js:34 - Linking.openURL("tel:...") for phone calls
+  - BaseScreen.js:41 - Linking.openURL("https://...") for maps
+  - BaseScreen.js:47 - Linking.openURL("https://...") for website
+
+⏺ Key Points for Your Professor's Questions:
+
+  1. Main Functions:
+  - App() - controls navigation between screens
+  - menuScreenHandler() - switches to menu screen
+  - baseScreenHandler() - switches to base screen
+  - BaseScreen() - displays restaurant info
+  - MenuScreen() - displays menu items
+  - Title() - reusable header component
+  - MenuItem() - displays individual menu items
+
+  2. How Functions Connect:
+  - App.js imports both screen components and passes navigation handlers as props
+  - Screen components receive onNext prop (navigation function)
+  - Button presses trigger the navigation functions, updating state in App.js
+  - State change causes re-render of different screen component
+
+  3. Data Flow:
+  - Colors defined in constants/color.js, imported by App.js
+  - Menu data stored as state array in MenuScreen.js
+  - Props flow: App.js → screens → components
+  - Navigation flows back up: components → screens → App.js

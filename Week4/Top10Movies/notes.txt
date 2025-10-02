@@ -1,0 +1,87 @@
+FlatList Pros:
+
+- Performance optimization for large datasets through virtualization (only 
+renders visible items)
+- Built-in pull-to-refresh functionality
+- Automatic memory management (removes off-screen components from memory)
+- Better scroll performance with large lists
+- Built-in support for headers, footers, and separators
+- Lazy loading capabilities
+- Optimized for handling thousands of items efficiently
+
+FlatList Cons:
+
+- More complex API compared to ScrollView
+- Requires data to be in array format
+- May have slight overhead for very small lists
+- Less flexible for custom layouts with mixed content types
+
+
+
+ScrollView Pros:
+
+- Simple and straightforward to use
+- Can contain any type of content (not just arrays)
+- More flexible for mixed layouts and custom designs
+- Better for small amounts of content
+- Can easily mix different types of components
+
+ScrollView Cons:
+
+Renders all children at once (performance issues with large lists)
+- No built-in virtualization
+- Memory usage increases with number of items
+- Can cause performance problems and crashes with large datasets
+- No built-in pull-to-refresh or lazy loading
+
+For Top 10 Movies app, FlatList is ideal because:
+
+1. Even though we only have 10 items, it demonstrates best practices for scalable lists
+2. Better performance characteristics if we later expand to more movies
+3. Built-in optimizations for scrolling behavior
+4. Cleaner code structure for rendering repeated items
+
+
+To make an image fit the whole screen or side-to-side, you'd typically
+  need to implement CSS styling properties like:
+
+  - width: 100% or width: 100vw for full width
+  - height: 100vh for full height
+  - object-fit: cover or object-fit: contain to control how the image
+  scales
+  - position: absolute or fixed for full screen positioning
+
+  In React Native, you'd use width: '100%', height: '100%', and
+  resizeMode: 'cover' or resizeMode: 'contain'.
+
+  The specific implementation depends on whether you want the image to
+  stretch, maintain aspect ratio, or crop to fit.
+
+
+
+
+
+  Cover means the image scales to completely fill the container while
+  maintaining its aspect ratio. It may crop parts of the image if the
+  aspect ratios don't match.
+
+  Aspect ratio is the relationship between width and height, defined as
+  width:height (like 16:9 or 4:3).
+
+  In code:
+
+  CSS:
+  object-fit: cover; /* scales to fill, may crop */
+  object-fit: contain; /* scales to fit entirely, may have empty space */
+  aspect-ratio: 16/9; /* sets width:height ratio */
+
+  React Native:
+  resizeMode: 'cover' // fills container, may crop
+  resizeMode: 'contain' // fits entirely, may have borders
+  style={{
+    aspectRatio: 16/9 // width:height ratio
+  }}
+
+  Cover prioritizes filling the space over showing the complete image,
+  while contain prioritizes showing the complete image over filling the
+  space.
