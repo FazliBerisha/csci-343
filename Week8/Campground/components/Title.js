@@ -11,7 +11,7 @@ export default function Title(props) {
 // Stylesheet for Title component
 const styles = StyleSheet.create({
   title: {
-    fontSize: 60,
+    fontSize: 50,
     color: Colors.primary800,
     fontFamily: "Hotel",
     textAlign: "center",
