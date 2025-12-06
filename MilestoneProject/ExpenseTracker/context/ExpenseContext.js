@@ -1,37 +1,46 @@
-import { createContext, useState, useContext } from 'react';
+import { createContext, useState, useContext, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ExpenseContext = createContext();
 
-// Sample data for Milestone 2
-const SAMPLE_EXPENSES = [
-  {
-    id: '1',
-    amount: 23.50,
-    category: 'Food',
-    description: 'Lunch at Cafe',
-    date: 'Nov 5, 2025',
-  },
-  {
-    id: '2',
-    amount: 15.00,
-    category: 'Transport',
-    description: 'Uber Ride',
-    date: 'Nov 4, 2025',
-  },
-  {
-    id: '3',
-    amount: 89.99,
-    category: 'Shopping',
-    description: 'Clothing Store',
-    date: 'Nov 4, 2025',
-  },
-];
+const STORAGE_KEY = '@expense_tracker_expenses';
 
 export const ExpenseProvider = ({ children }) => {
-  const [expenses, setExpenses] = useState(SAMPLE_EXPENSES);
+  const [expenses, setExpenses] = useState([]);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Add expense (stub for Milestone 2)
+  useEffect(() => {
+    loadExpenses();
+  }, []);
+
+  useEffect(() => {
+    if (!isLoading) {
+      saveExpenses();
+    }
+  }, [expenses]);
+
+  const loadExpenses = async () => {
+    try {
+      const storedExpenses = await AsyncStorage.getItem(STORAGE_KEY);
+      if (storedExpenses) {
+        setExpenses(JSON.parse(storedExpenses));
+      }
+    } catch (error) {
+      console.error('Error loading expenses:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const saveExpenses = async () => {
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(expenses));
+    } catch (error) {
+      console.error('Error saving expenses:', error);
+    }
+  };
+
   const addExpense = (expense) => {
     const newExpense = {
       id: Date.now().toString(),
@@ -40,27 +49,27 @@ export const ExpenseProvider = ({ children }) => {
     setExpenses([newExpense, ...expenses]);
   };
 
-  // Delete expense (stub for Milestone 2)
   const deleteExpense = (id) => {
     setExpenses(expenses.filter(expense => expense.id !== id));
   };
 
-  // Clear all expenses (stub for Milestone 2)
-  const clearAllExpenses = () => {
-    setExpenses([]);
+  const clearAllExpenses = async () => {
+    try {
+      await AsyncStorage.removeItem(STORAGE_KEY);
+      setExpenses([]);
+    } catch (error) {
+      console.error('Error clearing expenses:', error);
+    }
   };
 
-  // Toggle theme (stub for Milestone 2)
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
   };
 
-  // Calculate total spending
   const getTotalSpending = () => {
     return expenses.reduce((total, expense) => total + expense.amount, 0);
   };
 
-  // Calculate spending by category
   const getSpendingByCategory = () => {
     const categoryTotals = {};
 
@@ -78,6 +87,7 @@ export const ExpenseProvider = ({ children }) => {
   const value = {
     expenses,
     isDarkMode,
+    isLoading,
     addExpense,
     deleteExpense,
     clearAllExpenses,
@@ -93,7 +103,6 @@ export const ExpenseProvider = ({ children }) => {
   );
 };
 
-// Custom hook to use the expense context
 export const useExpense = () => {
   const context = useContext(ExpenseContext);
   if (!context) {

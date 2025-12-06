@@ -1,19 +1,29 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES, CATEGORIES } from '../constants/theme';
+import { useExpense } from '../context/ExpenseContext';
+import { getColors, SPACING, BORDER_RADIUS, FONT_SIZES, FONTS, CATEGORIES } from '../constants/theme';
 
-/**
- * ExpenseItem - Individual expense transaction card
- * Displays expense details including icon, description, category, date, and amount
- */
-const ExpenseItem = ({ amount, category, description, date, onPress }) => {
-  // Find category details from CATEGORIES array, default to "Other" if not found
+const ExpenseItem = ({ amount, category, description, date, onDelete }) => {
+  const { isDarkMode } = useExpense();
+  const COLORS = getColors(isDarkMode);
+
   const categoryData = CATEGORIES.find(cat => cat.name === category) || CATEGORIES[6];
+
+  const handlePress = () => {
+    Alert.alert(
+      'Delete Expense',
+      `Are you sure you want to delete "${description}" ($${amount.toFixed(2)})?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Delete', style: 'destructive', onPress: onDelete },
+      ]
+    );
+  };
 
   return (
     <TouchableOpacity
-      style={styles.container}
-      onPress={onPress}
+      style={[styles.container, { backgroundColor: COLORS.card }]}
+      onPress={handlePress}
       activeOpacity={0.7}
     >
       <View style={styles.leftSection}>
@@ -21,11 +31,11 @@ const ExpenseItem = ({ amount, category, description, date, onPress }) => {
           <Ionicons name={categoryData.icon} size={20} color={categoryData.color} />
         </View>
         <View style={styles.textContainer}>
-          <Text style={styles.description}>{description}</Text>
-          <Text style={styles.date}>{category} • {date}</Text>
+          <Text style={[styles.description, { color: COLORS.text }]}>{description}</Text>
+          <Text style={[styles.date, { color: COLORS.textSecondary }]}>{category} • {date}</Text>
         </View>
       </View>
-      <Text style={styles.amount}>-${amount.toFixed(2)}</Text>
+      <Text style={[styles.amount, { color: COLORS.expense }]}>-${amount.toFixed(2)}</Text>
     </TouchableOpacity>
   );
 };
@@ -35,7 +45,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: COLORS.card,
     padding: SPACING.md,
     marginVertical: SPACING.xs,
     marginHorizontal: SPACING.md,
@@ -64,18 +73,16 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: FONT_SIZES.md,
-    color: COLORS.text,
-    fontWeight: '600',
+    fontFamily: FONTS.semiBold,
     marginBottom: 2,
   },
   date: {
     fontSize: FONT_SIZES.xs,
-    color: COLORS.textSecondary,
+    fontFamily: FONTS.regular,
   },
   amount: {
     fontSize: FONT_SIZES.md,
-    color: COLORS.expense,
-    fontWeight: '700',
+    fontFamily: FONTS.bold,
     marginLeft: SPACING.sm,
   },
 });

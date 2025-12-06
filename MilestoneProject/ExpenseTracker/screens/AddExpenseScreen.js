@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   View,
   Text,
@@ -8,35 +8,65 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  Platform,
 } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { useExpense } from '../context/ExpenseContext';
 import CustomButton from '../components/CustomButton';
-import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES, CATEGORIES } from '../constants/theme';
+import { getColors, SPACING, BORDER_RADIUS, FONT_SIZES, FONTS, CATEGORIES } from '../constants/theme';
 
-/**
- * AddExpenseScreen - Form for recording new expenses
- * Allows users to input expense details including amount, category, description, and date
- */
 const AddExpenseScreen = () => {
-  // Form state
+  const { addExpense, isDarkMode } = useExpense();
+  const COLORS = getColors(isDarkMode);
+
   const [amount, setAmount] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(CATEGORIES[0].name);
   const [description, setDescription] = useState('');
-  const [date] = useState(new Date().toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric'
-  }));
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
-  // Handle form submission (placeholder for Milestone 3)
+  const formatDate = (date) => {
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
+  const handleDateChange = (event, date) => {
+    setShowDatePicker(Platform.OS === 'ios');
+    if (date) {
+      setSelectedDate(date);
+    }
+  };
+
   const handleAddExpense = () => {
-    Alert.alert('Success', 'Expense added! (This will be functional in Milestone 3)');
+    const cleanedAmount = amount.replace(/[$,]/g, '').trim();
+    const parsedAmount = parseFloat(cleanedAmount);
+    if (!cleanedAmount || isNaN(parsedAmount) || parsedAmount <= 0) {
+      Alert.alert('Invalid Amount', 'Please enter a valid amount greater than 0');
+      return;
+    }
+
+    addExpense({
+      amount: parsedAmount,
+      category: selectedCategory,
+      description: description.trim() || selectedCategory,
+      date: formatDate(selectedDate),
+    });
+
+    Alert.alert('Success', 'Expense added successfully!');
+
+    setAmount('');
+    setDescription('');
+    setSelectedCategory(CATEGORIES[0].name);
+    setSelectedDate(new Date());
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Gradient Header */}
+    <SafeAreaView style={[styles.container, { backgroundColor: COLORS.background }]}>
       <LinearGradient
         colors={[COLORS.gradient1, COLORS.gradient2]}
         start={{ x: 0, y: 0 }}
@@ -51,11 +81,10 @@ const AddExpenseScreen = () => {
         style={styles.formContainer}
         showsVerticalScrollIndicator={false}
       >
-        {/* Amount Input Field */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Amount</Text>
+          <Text style={[styles.label, { color: COLORS.text }]}>Amount</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: COLORS.card, color: COLORS.text, borderColor: COLORS.background }]}
             placeholder="$45.00"
             placeholderTextColor={COLORS.textLight}
             value={amount}
@@ -64,9 +93,8 @@ const AddExpenseScreen = () => {
           />
         </View>
 
-        {/* Category Selection - Horizontal scrollable buttons */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Category</Text>
+          <Text style={[styles.label, { color: COLORS.text }]}>Category</Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -79,19 +107,23 @@ const AddExpenseScreen = () => {
                 style={[
                   styles.categoryButton,
                   selectedCategory === category.name && styles.categoryButtonActive,
-                  { backgroundColor: selectedCategory === category.name ? category.color : COLORS.card }
+                  {
+                    backgroundColor: selectedCategory === category.name ? category.color : COLORS.card,
+                    borderColor: selectedCategory === category.name ? 'transparent' : COLORS.background
+                  }
                 ]}
                 onPress={() => setSelectedCategory(category.name)}
               >
                 <Ionicons
                   name={category.icon}
                   size={20}
-                  color={selectedCategory === category.name ? COLORS.card : category.color}
+                  color={selectedCategory === category.name ? '#FFFFFF' : category.color}
                 />
                 <Text
                   style={[
                     styles.categoryText,
                     selectedCategory === category.name && styles.categoryTextActive,
+                    { color: selectedCategory === category.name ? '#FFFFFF' : COLORS.text }
                   ]}
                 >
                   {category.name}
@@ -101,11 +133,10 @@ const AddExpenseScreen = () => {
           </ScrollView>
         </View>
 
-        {/* Description Input - Optional multiline text */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Description (optional)</Text>
+          <Text style={[styles.label, { color: COLORS.text }]}>Description (optional)</Text>
           <TextInput
-            style={[styles.input, styles.descriptionInput]}
+            style={[styles.input, styles.descriptionInput, { backgroundColor: COLORS.card, color: COLORS.text, borderColor: COLORS.background }]}
             placeholder="Gas station fill-up"
             placeholderTextColor={COLORS.textLight}
             value={description}
@@ -114,15 +145,26 @@ const AddExpenseScreen = () => {
           />
         </View>
 
-        {/* Date Display - Shows current date */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Date</Text>
-          <View style={styles.dateContainer}>
-            <Text style={styles.dateText}>{date}</Text>
-          </View>
+          <Text style={[styles.label, { color: COLORS.text }]}>Date</Text>
+          <TouchableOpacity
+            style={[styles.dateContainer, { backgroundColor: COLORS.card, borderColor: COLORS.background }]}
+            onPress={() => setShowDatePicker(true)}
+          >
+            <Text style={[styles.dateText, { color: COLORS.text }]}>{formatDate(selectedDate)}</Text>
+            <Ionicons name="calendar-outline" size={20} color={COLORS.primary} />
+          </TouchableOpacity>
         </View>
 
-        {/* Submit Button */}
+        {showDatePicker && (
+          <DateTimePicker
+            value={selectedDate}
+            mode="date"
+            display="default"
+            onChange={handleDateChange}
+          />
+        )}
+
         <View style={styles.buttonContainer}>
           <CustomButton
             title="Add Expense"
@@ -138,7 +180,6 @@ const AddExpenseScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
   },
   header: {
     paddingTop: 48,
@@ -147,13 +188,14 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: FONT_SIZES.xxl,
-    color: COLORS.card,
-    fontWeight: 'bold',
+    fontFamily: FONTS.bold,
+    color: '#FFFFFF',
     marginBottom: SPACING.xs,
   },
   headerSubtitle: {
     fontSize: FONT_SIZES.sm,
-    color: COLORS.card,
+    fontFamily: FONTS.regular,
+    color: '#FFFFFF',
     opacity: 0.8,
   },
   formContainer: {
@@ -166,18 +208,15 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: FONT_SIZES.md,
-    color: COLORS.text,
-    fontWeight: '600',
+    fontFamily: FONTS.semiBold,
     marginBottom: SPACING.sm,
   },
   input: {
-    backgroundColor: COLORS.card,
     borderRadius: BORDER_RADIUS.md,
     padding: SPACING.md,
     fontSize: FONT_SIZES.md,
-    color: COLORS.text,
+    fontFamily: FONTS.regular,
     borderWidth: 1,
-    borderColor: COLORS.background,
   },
   descriptionInput: {
     height: 80,
@@ -198,31 +237,29 @@ const styles = StyleSheet.create({
     borderRadius: BORDER_RADIUS.md,
     marginRight: SPACING.sm,
     borderWidth: 1,
-    borderColor: COLORS.background,
   },
   categoryButtonActive: {
     borderColor: 'transparent',
   },
   categoryText: {
     fontSize: FONT_SIZES.sm,
-    color: COLORS.text,
+    fontFamily: FONTS.medium,
     marginLeft: SPACING.xs,
-    fontWeight: '500',
   },
   categoryTextActive: {
-    color: COLORS.card,
-    fontWeight: '600',
+    fontFamily: FONTS.semiBold,
   },
   dateContainer: {
-    backgroundColor: COLORS.card,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     borderRadius: BORDER_RADIUS.md,
     padding: SPACING.md,
     borderWidth: 1,
-    borderColor: COLORS.background,
   },
   dateText: {
     fontSize: FONT_SIZES.md,
-    color: COLORS.text,
+    fontFamily: FONTS.regular,
   },
   buttonContainer: {
     marginTop: SPACING.lg,

@@ -2,19 +2,25 @@ import { View, Text, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useExpense } from '../context/ExpenseContext';
 import CategoryCard from '../components/CategoryCard';
-import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES, CATEGORIES } from '../constants/theme';
+import { getColors, SPACING, BORDER_RADIUS, FONT_SIZES, FONTS, CATEGORIES } from '../constants/theme';
 
-/**
- * CategoryScreen - Displays spending breakdown by category
- * Shows a placeholder for future chart visualization and list of all categories with amounts
- */
 const CategoryScreen = () => {
-  const { getSpendingByCategory } = useExpense();
+  const { getSpendingByCategory, getTotalSpending, isDarkMode } = useExpense();
   const categorySpending = getSpendingByCategory();
+  const totalSpending = getTotalSpending();
+  const COLORS = getColors(isDarkMode);
+
+  const chartData = CATEGORIES
+    .map(cat => ({
+      ...cat,
+      amount: categorySpending[cat.name] || 0,
+    }))
+    .filter(cat => cat.amount > 0);
+
+  const maxSpending = Math.max(...chartData.map(cat => cat.amount), 1);
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Gradient Header */}
+    <SafeAreaView style={[styles.container, { backgroundColor: COLORS.background }]}>
       <LinearGradient
         colors={[COLORS.gradient1, COLORS.gradient2]}
         start={{ x: 0, y: 0 }}
@@ -29,16 +35,40 @@ const CategoryScreen = () => {
         style={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        {/* Placeholder for Future Chart Visualization */}
-        <View style={styles.chartPlaceholder}>
-          <Text style={styles.chartIcon}>📊</Text>
-          <Text style={styles.chartText}>Spending Chart</Text>
-          <Text style={styles.chartSubtext}>(Pie or Bar Chart)</Text>
+        <View style={[styles.chartContainer, { backgroundColor: COLORS.card }]}>
+          <Text style={[styles.chartTitle, { color: COLORS.text }]}>Spending Chart</Text>
+          {chartData.length === 0 ? (
+            <View style={styles.emptyChart}>
+              <Text style={[styles.emptyChartText, { color: COLORS.textLight }]}>No expenses to display</Text>
+            </View>
+          ) : (
+            <View style={styles.barsContainer}>
+              {chartData.map((category) => {
+                const barWidth = (category.amount / maxSpending) * 100;
+                const percentage = totalSpending > 0
+                  ? ((category.amount / totalSpending) * 100).toFixed(0)
+                  : 0;
+                return (
+                  <View key={category.id} style={styles.barRow}>
+                    <Text style={[styles.barLabel, { color: COLORS.text }]} numberOfLines={1}>{category.name}</Text>
+                    <View style={[styles.barBackground, { backgroundColor: COLORS.background }]}>
+                      <View
+                        style={[
+                          styles.barFill,
+                          { width: `${barWidth}%`, backgroundColor: category.color }
+                        ]}
+                      />
+                    </View>
+                    <Text style={[styles.barValue, { color: COLORS.textSecondary }]}>{percentage}%</Text>
+                  </View>
+                );
+              })}
+            </View>
+          )}
         </View>
 
-        {/* Category List Section - Shows all categories with spending amounts */}
         <View style={styles.categorySection}>
-          <Text style={styles.sectionTitle}>Spending by Category</Text>
+          <Text style={[styles.sectionTitle, { color: COLORS.text }]}>Spending by Category</Text>
 
           {CATEGORIES.map((category) => {
             const amount = categorySpending[category.name] || 0;
@@ -61,7 +91,6 @@ const CategoryScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
   },
   header: {
     paddingTop: 48,
@@ -70,47 +99,74 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: FONT_SIZES.xxl,
-    color: COLORS.card,
-    fontWeight: 'bold',
+    fontFamily: FONTS.bold,
+    color: '#FFFFFF',
     marginBottom: SPACING.xs,
   },
   headerSubtitle: {
     fontSize: FONT_SIZES.sm,
-    color: COLORS.card,
+    fontFamily: FONTS.regular,
+    color: '#FFFFFF',
     opacity: 0.8,
   },
   content: {
     flex: 1,
   },
-  chartPlaceholder: {
-    backgroundColor: COLORS.card,
+  chartContainer: {
     marginHorizontal: SPACING.lg,
     marginTop: SPACING.lg,
     marginBottom: SPACING.md,
     borderRadius: BORDER_RADIUS.lg,
-    padding: SPACING.xxl,
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 200,
+    padding: SPACING.lg,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
-  chartIcon: {
-    fontSize: 48,
-    marginBottom: SPACING.sm,
-  },
-  chartText: {
+  chartTitle: {
     fontSize: FONT_SIZES.lg,
-    color: COLORS.textSecondary,
-    fontWeight: '600',
+    fontFamily: FONTS.semiBold,
+    marginBottom: SPACING.md,
+    textAlign: 'center',
   },
-  chartSubtext: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textLight,
-    marginTop: SPACING.xs,
+  emptyChart: {
+    paddingVertical: SPACING.xxl,
+    alignItems: 'center',
+  },
+  emptyChartText: {
+    fontSize: FONT_SIZES.md,
+    fontFamily: FONTS.regular,
+  },
+  barsContainer: {
+    marginTop: SPACING.sm,
+  },
+  barRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: SPACING.md,
+  },
+  barLabel: {
+    width: 80,
+    fontSize: FONT_SIZES.xs,
+    fontFamily: FONTS.medium,
+  },
+  barBackground: {
+    flex: 1,
+    height: 20,
+    borderRadius: BORDER_RADIUS.sm,
+    overflow: 'hidden',
+    marginHorizontal: SPACING.sm,
+  },
+  barFill: {
+    height: '100%',
+    borderRadius: BORDER_RADIUS.sm,
+  },
+  barValue: {
+    width: 40,
+    fontSize: FONT_SIZES.xs,
+    fontFamily: FONTS.semiBold,
+    textAlign: 'right',
   },
   categorySection: {
     marginTop: SPACING.md,
@@ -118,8 +174,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: FONT_SIZES.lg,
-    color: COLORS.text,
-    fontWeight: '600',
+    fontFamily: FONTS.semiBold,
     marginHorizontal: SPACING.lg,
     marginBottom: SPACING.sm,
   },

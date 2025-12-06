@@ -1,6 +1,4 @@
-// Theme constants for the Expense Tracker app
-
-// Light theme colors (matching mockup)
+// Light theme colors
 export const COLORS = {
   primary: '#6366F1',
   secondary: '#8B5CF6',
@@ -38,12 +36,14 @@ export const DARK_COLORS = {
   tabBarInactive: '#6B7280',
 };
 
+export const getColors = (isDarkMode) => isDarkMode ? DARK_COLORS : COLORS;
+
 // Font families
 export const FONTS = {
-  regular: 'System',
-  medium: 'System',
-  bold: 'System',
-  semiBold: 'System',
+  regular: 'Inter_400Regular',
+  medium: 'Inter_500Medium',
+  semiBold: 'Inter_600SemiBold',
+  bold: 'Inter_700Bold',
 };
 
 // Font sizes
@@ -67,7 +67,6 @@ export const SPACING = {
   xxl: 40,
 };
 
-// Border radius
 export const BORDER_RADIUS = {
   sm: 8,
   md: 12,
@@ -76,7 +75,6 @@ export const BORDER_RADIUS = {
   full: 9999,
 };
 
-// Categories with icons and colors
 export const CATEGORIES = [
   { id: '1', name: 'Food', icon: 'fast-food', color: '#EF4444' },
   { id: '2', name: 'Transport', icon: 'car', color: '#3B82F6' },

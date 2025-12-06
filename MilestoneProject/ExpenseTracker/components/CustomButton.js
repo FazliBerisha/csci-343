@@ -1,13 +1,8 @@
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES } from '../constants/theme';
+import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES, FONTS } from '../constants/theme';
 
-/**
- * CustomButton - Reusable button component with three variants
- * Variants: 'primary' (gradient), 'secondary' (outlined), 'danger' (red)
- */
 const CustomButton = ({ title, onPress, variant = 'primary', style }) => {
-  // Primary button with gradient background
   if (variant === 'primary') {
     return (
       <TouchableOpacity onPress={onPress} style={[styles.button, style]} activeOpacity={0.8}>
@@ -23,7 +18,6 @@ const CustomButton = ({ title, onPress, variant = 'primary', style }) => {
     );
   }
 
-  // Danger button for destructive actions
   if (variant === 'danger') {
     return (
       <TouchableOpacity
@@ -36,7 +30,6 @@ const CustomButton = ({ title, onPress, variant = 'primary', style }) => {
     );
   }
 
-  // Secondary button with outline style
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -62,7 +55,7 @@ const styles = StyleSheet.create({
   primaryText: {
     color: COLORS.card,
     fontSize: FONT_SIZES.md,
-    fontWeight: '600',
+    fontFamily: FONTS.semiBold,
   },
   secondaryButton: {
     backgroundColor: COLORS.card,
@@ -76,7 +69,7 @@ const styles = StyleSheet.create({
   secondaryText: {
     color: COLORS.primary,
     fontSize: FONT_SIZES.md,
-    fontWeight: '600',
+    fontFamily: FONTS.semiBold,
   },
   dangerButton: {
     backgroundColor: COLORS.error,
@@ -88,7 +81,7 @@ const styles = StyleSheet.create({
   dangerText: {
     color: COLORS.card,
     fontSize: FONT_SIZES.md,
-    fontWeight: '600',
+    fontFamily: FONTS.semiBold,
   },
 });
 

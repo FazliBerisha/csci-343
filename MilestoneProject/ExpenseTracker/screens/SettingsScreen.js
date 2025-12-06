@@ -1,18 +1,14 @@
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, Switch, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, Switch, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useExpense } from '../context/ExpenseContext';
 import CustomButton from '../components/CustomButton';
-import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES } from '../constants/theme';
+import { getColors, SPACING, BORDER_RADIUS, FONT_SIZES, FONTS } from '../constants/theme';
 
-/**
- * SettingsScreen - App customization and data management
- * Includes theme toggle, notification settings, and data management options
- */
 const SettingsScreen = () => {
-  const { isDarkMode, toggleTheme } = useExpense();
+  const { isDarkMode, toggleTheme, clearAllExpenses } = useExpense();
+  const COLORS = getColors(isDarkMode);
 
-  // Handle clear all data with confirmation dialog (placeholder for Milestone 3)
   const handleClearAllData = () => {
     Alert.alert(
       'Clear All Data',
@@ -26,20 +22,16 @@ const SettingsScreen = () => {
           text: 'Delete',
           style: 'destructive',
           onPress: () => {
-            Alert.alert('Success', 'Data will be cleared! (This will be functional in Milestone 3)');
+            clearAllExpenses();
+            Alert.alert('Success', 'All expenses have been deleted!');
           },
         },
       ]
     );
   };
 
-  // Handle data export (placeholder for future feature)
-  const handleExportData = () => {
-    Alert.alert('Export Data', 'Export functionality coming soon!');
-  };
-
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: COLORS.background }]}>
       <LinearGradient
         colors={[COLORS.gradient1, COLORS.gradient2]}
         start={{ x: 0, y: 0 }}
@@ -56,14 +48,14 @@ const SettingsScreen = () => {
       >
         {/* Appearance Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>APPEARANCE</Text>
+          <Text style={[styles.sectionTitle, { color: COLORS.textSecondary }]}>APPEARANCE</Text>
 
-          <View style={styles.settingItem}>
+          <View style={[styles.settingItem, { backgroundColor: COLORS.card }]}>
             <View style={styles.settingLeft}>
               <Ionicons name="moon" size={22} color={COLORS.primary} />
               <View style={styles.settingTextContainer}>
-                <Text style={styles.settingTitle}>Dark Mode</Text>
-                <Text style={styles.settingSubtitle}>Enable dark theme</Text>
+                <Text style={[styles.settingTitle, { color: COLORS.text }]}>Dark Mode</Text>
+                <Text style={[styles.settingSubtitle, { color: COLORS.textSecondary }]}>Enable dark theme</Text>
               </View>
             </View>
             <Switch
@@ -75,61 +67,8 @@ const SettingsScreen = () => {
           </View>
         </View>
 
-        {/* Notifications Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>NOTIFICATIONS</Text>
-
-          <View style={styles.settingItem}>
-            <View style={styles.settingLeft}>
-              <Ionicons name="notifications" size={22} color={COLORS.primary} />
-              <View style={styles.settingTextContainer}>
-                <Text style={styles.settingTitle}>Daily Reminders</Text>
-                <Text style={styles.settingSubtitle}>Get reminded to log expenses</Text>
-              </View>
-            </View>
-            <Switch
-              value={false}
-              onValueChange={() => {}}
-              trackColor={{ false: COLORS.textLight, true: COLORS.primary }}
-              thumbColor={COLORS.card}
-            />
-          </View>
-
-          <View style={styles.settingItem}>
-            <View style={styles.settingLeft}>
-              <Ionicons name="alert-circle" size={22} color={COLORS.primary} />
-              <View style={styles.settingTextContainer}>
-                <Text style={styles.settingTitle}>Budget Alerts</Text>
-                <Text style={styles.settingSubtitle}>Notify when over budget limit</Text>
-              </View>
-            </View>
-            <Switch
-              value={true}
-              onValueChange={() => {}}
-              trackColor={{ false: COLORS.textLight, true: COLORS.primary }}
-              thumbColor={COLORS.card}
-            />
-          </View>
-        </View>
-
-        {/* Data Management Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>DATA MANAGEMENT</Text>
-
-          <TouchableOpacity
-            style={styles.settingItem}
-            onPress={handleExportData}
-            activeOpacity={0.7}
-          >
-            <View style={styles.settingLeft}>
-              <Ionicons name="download" size={22} color={COLORS.primary} />
-              <View style={styles.settingTextContainer}>
-                <Text style={styles.settingTitle}>Export Data</Text>
-                <Text style={styles.settingSubtitle}>Download spending history</Text>
-              </View>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color={COLORS.textLight} />
-          </TouchableOpacity>
+          <Text style={[styles.sectionTitle, { color: COLORS.textSecondary }]}>DATA MANAGEMENT</Text>
 
           <View style={styles.clearDataContainer}>
             <CustomButton
@@ -142,8 +81,8 @@ const SettingsScreen = () => {
 
         {/* App Info */}
         <View style={styles.appInfo}>
-          <Text style={styles.appInfoText}>Expense Tracker v1.0.0</Text>
-          <Text style={styles.appInfoSubtext}>Milestone 2 - CSCI 343</Text>
+          <Text style={[styles.appInfoText, { color: COLORS.textSecondary }]}>Expense Tracker v1.0.0</Text>
+          <Text style={[styles.appInfoSubtext, { color: COLORS.textLight }]}>CSCI 343</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -153,7 +92,6 @@ const SettingsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
   },
   header: {
     paddingTop: 48,
@@ -162,13 +100,14 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: FONT_SIZES.xxl,
-    color: COLORS.card,
-    fontWeight: 'bold',
+    fontFamily: FONTS.bold,
+    color: '#FFFFFF',
     marginBottom: SPACING.xs,
   },
   headerSubtitle: {
     fontSize: FONT_SIZES.sm,
-    color: COLORS.card,
+    fontFamily: FONTS.regular,
+    color: '#FFFFFF',
     opacity: 0.8,
   },
   content: {
@@ -179,8 +118,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: FONT_SIZES.xs,
-    color: COLORS.textSecondary,
-    fontWeight: '600',
+    fontFamily: FONTS.semiBold,
     marginHorizontal: SPACING.lg,
     marginBottom: SPACING.sm,
     letterSpacing: 0.5,
@@ -189,7 +127,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: COLORS.card,
     padding: SPACING.md,
     marginHorizontal: SPACING.lg,
     marginBottom: SPACING.xs,
@@ -211,13 +148,12 @@ const styles = StyleSheet.create({
   },
   settingTitle: {
     fontSize: FONT_SIZES.md,
-    color: COLORS.text,
-    fontWeight: '600',
+    fontFamily: FONTS.semiBold,
     marginBottom: 2,
   },
   settingSubtitle: {
     fontSize: FONT_SIZES.xs,
-    color: COLORS.textSecondary,
+    fontFamily: FONTS.regular,
   },
   clearDataContainer: {
     marginHorizontal: SPACING.lg,
@@ -229,12 +165,11 @@ const styles = StyleSheet.create({
   },
   appInfoText: {
     fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
-    fontWeight: '500',
+    fontFamily: FONTS.medium,
   },
   appInfoSubtext: {
     fontSize: FONT_SIZES.xs,
-    color: COLORS.textLight,
+    fontFamily: FONTS.regular,
     marginTop: SPACING.xs,
   },
 });
